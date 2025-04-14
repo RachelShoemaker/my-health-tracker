@@ -14,7 +14,7 @@ app.post("/weights", async(req, res) => {
     try {
         const { measurement_date, weight } = req.body;
         const newWeight = await pool.query("INSERT INTO weight_entries (measurement_date, weight) VALUES($1, $2) RETURNING *", [measurement_date, weight]);
-
+        console.log("Received weigth:", weight);
         res.json(newWeight.rows[0]);
     } catch (e) {
         console.error(e.message);
