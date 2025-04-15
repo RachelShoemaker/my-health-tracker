@@ -1,4 +1,5 @@
 import React, {Fragment, useEffect, useState} from "react";
+import EditWeight from "./EditWeight";
 
 const ListWeights = () => {
     const [weights, setWeights] = useState([]);
@@ -32,7 +33,7 @@ const ListWeights = () => {
 
     return (
     <Fragment>
-        <table class="table table-dark">
+        <table className="table table-dark">
   <thead>
     <tr>
 
@@ -43,17 +44,35 @@ const ListWeights = () => {
     </tr>
   </thead>
   <tbody>
-    {weights.map( w => (
-        <tr>
-            <td>{w.measurement_date.split('T')[0]}</td>
-            <td>{w.weight}</td>
-            <td>Edit</td>
-            <td><button className="btn btn-danger" 
-                onClick={() => deleteWeight(w.measurement_date.split('T')[0])}>
-                Delete
-            </button></td>
-        </tr>
-    ))}
+  {weights.map((w) => (
+  <tr key={w.measurement_date}>
+    <td>{w.measurement_date.split('T')[0]}</td>
+    <td>{w.weight}</td>
+    <td>
+      <EditWeight
+        measurement_date={w.measurement_date.split("T")[0]} 
+        currentWeight={w.weight}
+        onUpdated={(updatedData) => {
+          setWeights(
+            weights.map(item =>
+              item.measurement_date.split("T")[0] === updatedData.measurement_date.split("T")[0]
+                ? updatedData 
+                : item
+            )
+          );
+        }}
+      />
+    </td>
+    <td>
+      <button 
+        className="btn btn-danger"
+        onClick={() => deleteWeight(w.measurement_date.split('T')[0])}
+      >
+        Delete
+      </button>
+    </td>
+  </tr>
+))}
   </tbody>
 </table>
     </Fragment>

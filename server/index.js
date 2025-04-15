@@ -46,7 +46,7 @@ app.put("/weights/:measurement_date", async (req, res) => {
     try {
         const { measurement_date } = req.params;
         const { weight } = req.body;
-        const updateWeight = await pool.query("UPDATE weight_entries SET weight = $1 WHERE measurement_Date = $2", [weight, measurement_date]);
+        const updateWeight = await pool.query("UPDATE weight_entries SET weight = $1 WHERE measurement_Date = $2 RETURNING *", [weight, measurement_date]);
         res.json("Weight updated");
     } catch (error) {
         console.error(error.message);
