@@ -3,6 +3,7 @@ import './App.css'
 
 // components
 import InputWeight from "./components/InputWeight";
+import ListWeights from "./components/ListWeights";
 
 function App() {
   const today = new Date().toISOString().split('T')[0];
@@ -12,6 +13,7 @@ function App() {
     <Fragment>
       <div className='container'> 
         <InputWeight /> 
+        <ListWeights />
       </div>     
     </Fragment>
   );
