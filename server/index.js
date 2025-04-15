@@ -67,3 +67,29 @@ app.delete("/weights/:measurement_date", async (req, res) => {
 app.listen(5000, () => {
     console.log("started server on port 5000")
 });
+
+// Moving averages for 7-day, 30-day, and 90-day
+app.get("/weights", async(req, res) => {
+    try {
+        const allWeights = await pool.query("SELECT * FROM weight_entries");
+        const queryWeekAvg = buildMovingAverageQuery(7);
+        const queryMonthAvg = buildMovingAverageQuery(30);
+        const queryThreeMonthAvg = buildMovingAverageQuery(90);
+    }
+catch (e) {
+    console.error(e.message);
+}});
+
+
+
+function buildMovingAverageQuery(windowWidth) {
+    const adjustedWindowWidth = windowWidth - 1;
+    return `
+      SELECT measurement_date, weight, AVG(weight) OVER (
+        ORDER BY measurement_date
+        ROWS BETWEEN ${adjustedWindowWidth} PRECEDING AND CURRENT ROW
+      ) AS moving_avg
+      FROM weight_entries
+      ORDER BY measurement_date;
+    `;
+  }
