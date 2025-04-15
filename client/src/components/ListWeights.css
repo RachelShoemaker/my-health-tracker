@@ -1,0 +1,9 @@
+.section-padding {
+    margin-bottom: 20px;
+    padding: 20px;
+  }
+
+.divider {
+    height: 4px;
+    background-color: #a9a9a9;
+}

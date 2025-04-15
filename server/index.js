@@ -41,19 +41,19 @@ app.get("/weights/moving-averages", async (req, res) => {
           weight,
           /* 7-day moving average */
           AVG(weight) OVER (
-            ORDER BY measurement_date 
+            ORDER BY measurement_date DESC
             ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
           ) AS avg_7_day,
   
           /* 30-day moving average */
           AVG(weight) OVER (
-            ORDER BY measurement_date
+            ORDER BY measurement_date DESC
             ROWS BETWEEN 29 PRECEDING AND CURRENT ROW
           ) AS avg_30_day,
   
           /* 90-day moving average */
           AVG(weight) OVER (
-            ORDER BY measurement_date
+            ORDER BY measurement_date DESC
             ROWS BETWEEN 89 PRECEDING AND CURRENT ROW
           ) AS avg_90_day
   
