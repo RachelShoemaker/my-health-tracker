@@ -30,6 +30,48 @@ catch (e) {
     console.error(e.message);
 }});
 
+// Calculate averages for 7-day, 30-day, and 90-day using SQL windowing
+app.get("/averages", async(req, res) => { // can I have 2 get requests from the same url?
+    try {
+        const queryWeekAvg = buildMovingAverageQuery(7);
+        const queryMonthAvg = buildMovingAverageQuery(30);
+        const queryThreeMonthAvg = buildMovingAverageQuery(90);
+        // turn it into json?
+        const result7 = await pool.query(queryWeekAvg);
+        const result30 = await pool.query(queryMonthAvg);
+        const result90 = await pool.query(queryThreeMonthAvg);
+
+        res.json({
+            sevenDay: result7,
+            thirtyDay: result30.rows,
+            ninetyDay: result90.rows
+        });
+    }
+catch (e) {
+    console.error(e.message);
+}});
+
+function buildMovingAverageQuery(windowWidth) {
+    const adjustedWindowWidth = windowWidth - 1;
+    return `
+        SELECT avg(weight)
+            OVER (ORDER BY measurement_date ROWS ${adjustedWindowWidth} PRECEDING)
+            AS avg_weight
+        FROM weight_entries
+    `;
+  }
+
+// function buildMovingAverageQuery(windowWidth) {
+//     const adjustedWindowWidth = windowWidth - 1;
+//     return `
+//       SELECT measurement_date, weight, AVG(weight) OVER (
+//         ORDER BY measurement_date
+//         ROWS BETWEEN ${adjustedWindowWidth} PRECEDING AND CURRENT ROW
+//       ) AS moving_avg
+//       FROM weight_entries
+//       ORDER BY measurement_date;
+//     `;
+//   }
 // Get one entry.
 app.get("/weights/:measurement_date", async (req, res) => {
     try {
@@ -68,28 +110,3 @@ app.listen(5000, () => {
     console.log("started server on port 5000")
 });
 
-// Moving averages for 7-day, 30-day, and 90-day
-app.get("/weights", async(req, res) => {
-    try {
-        const allWeights = await pool.query("SELECT * FROM weight_entries");
-        const queryWeekAvg = buildMovingAverageQuery(7);
-        const queryMonthAvg = buildMovingAverageQuery(30);
-        const queryThreeMonthAvg = buildMovingAverageQuery(90);
-    }
-catch (e) {
-    console.error(e.message);
-}});
-
-
-
-function buildMovingAverageQuery(windowWidth) {
-    const adjustedWindowWidth = windowWidth - 1;
-    return `
-      SELECT measurement_date, weight, AVG(weight) OVER (
-        ORDER BY measurement_date
-        ROWS BETWEEN ${adjustedWindowWidth} PRECEDING AND CURRENT ROW
-      ) AS moving_avg
-      FROM weight_entries
-      ORDER BY measurement_date;
-    `;
-  }

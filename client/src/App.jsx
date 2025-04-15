@@ -5,6 +5,7 @@ import './App.css'
 import InputWeight from "./components/InputWeight";
 import ListWeights from "./components/ListWeights";
 import EditWeight from "./components/EditWeight";
+import Averages from './components/Averages';
 
 function App() {
   const today = new Date().toISOString().split('T')[0];
@@ -15,6 +16,7 @@ function App() {
       <div className='container'> 
         <InputWeight /> 
         <ListWeights />
+        <Averages />
       </div>     
     </Fragment>
   );
