@@ -2,6 +2,20 @@ import React, {Fragment, useEffect, useState} from "react";
 
 const ListWeights = () => {
     const [weights, setWeights] = useState([]);
+
+    // delete func
+    const deleteWeight = async measurement_date => {
+        try {
+            const deleteWeight = await fetch(`http://localhost:5000/weights/${measurement_date}`, {
+                method: "DELETE"
+            });
+
+            setWeights(weights.filter(w => w.measurement_date.split('T')[0] !== measurement_date));
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
     const getWeights = async () => {
         try {
             const response = await fetch("http://localhost:5000/weights");
@@ -34,7 +48,10 @@ const ListWeights = () => {
             <td>{w.measurement_date.split('T')[0]}</td>
             <td>{w.weight}</td>
             <td>Edit</td>
-            <td>Delete</td>
+            <td><button className="btn btn-danger" 
+                onClick={() => deleteWeight(w.measurement_date.split('T')[0])}>
+                Delete
+            </button></td>
         </tr>
     ))}
   </tbody>

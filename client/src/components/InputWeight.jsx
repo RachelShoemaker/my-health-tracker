@@ -29,7 +29,7 @@ const InputWeight = () => {
                 <input type="date" className="form-control" value={measurement_date} onChange={e => setDate(e.target.value)}/>
                 <h2>Enter weight</h2>
                 <input type="text" className="form-control" value={weight} onChange={e => setWeight(e.target.value)}/>
-                <button className="btn btn-succes">Add</button>
+                <button className="btn btn-success">Add</button>
             </form>
         </Fragment>
     );
