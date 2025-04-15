@@ -1,53 +1,49 @@
-import React, {Fragment, useState, useEffect} from "react";
+import React, {Fragment, useEffect, useState} from "react";
 
-const Averages = () => { // Do I need an input?
-    const [averages, setAverages] = useState([]); // Is this correct?
+const Averages = () => {
+    const [averages, setAverages] = useState([]);
 
-    // Calculate the averages using the query function from the backend?
-    const calculateAverages = async () => {
-        // I believe I grab the call the method from the backend class index.js?
+    const getAverages = async () => {
         try {
-            const response = await fetch("http://localhost:5000/averages", { // This should give us the averages?
-                method: "GET", // I believe the method is GET because I am receiving data?
-                headers: {
-                    "Content-Type": "application/json" // I want the response to be a json?
-                },
-            }); 
-            const jsonData = await response.json(); // turns those averages into json?
+            const response = await fetch("http://localhost:5000/weights/moving-averages");
+            const jsonData = await response.json();
             setAverages(jsonData);
         } catch (error) {
             console.error(error.message);
         }
     };
 
-    // Some of the tutorial code uses a useEffect. Do I need one here?
-    // useEffect(() => {
-    //     calculateAverages();
-    // }, []);
+    useEffect(() => {
+        getAverages();
+    }, []);
 
     return (
         <Fragment>
-            <table className="table table-dark">
+            <h2 className="mt-4">Moving Averages</h2>
+            <table className="table table-dark mt-3">
                 <thead>
                     <tr>
-                        <th scope="col">7-day average</th>
-                        <th scope="col">30-day average</th>
-                        <th scope="col">90-day average</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Weight</th>
+                        <th scope="col">7-day Avg</th>
+                        <th scope="col">30-day Avg</th>
+                        <th scope="col">90-day Avg</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {averages.map((avg) => (
-                        <tr>
-                          <td >{avg.sevenDay}</td> 
-                          <td>{avg.thirtyDay}</td>
-                          <td>{avg.ninetyDay}</td>
+                    {averages.map((entry) => (
+                        <tr key={entry.measurement_date}>
+                            <td>{entry.measurement_date.split("T")[0]}</td>
+                            <td>{entry.weight}</td>
+                            <td>{entry.avg_7_day}</td>
+                            <td>{entry.avg_30_day}</td>
+                            <td>{entry.avg_90_day}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
         </Fragment>
     );
-    
 };
 
 export default Averages;

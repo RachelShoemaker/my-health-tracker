@@ -30,49 +30,50 @@ catch (e) {
     console.error(e.message);
 }});
 
-// Calculate averages for 7-day, 30-day, and 90-day using SQL windowing
-app.get("/averages", async(req, res) => { // can I have 2 get requests from the same url?
+// Add this to index.js (or wherever you keep your routes)
+// This route will fetch all weight entries and include 7/30/90 day averages
+
+app.get("/weights/moving-averages", async (req, res) => {
     try {
-        const queryWeekAvg = buildMovingAverageQuery(7);
-        const queryMonthAvg = buildMovingAverageQuery(30);
-        const queryThreeMonthAvg = buildMovingAverageQuery(90);
-        // turn it into json?
-        const result7 = await pool.query(queryWeekAvg);
-        const result30 = await pool.query(queryMonthAvg);
-        const result90 = await pool.query(queryThreeMonthAvg);
-
-        res.json({
-            sevenDay: result7,
-            thirtyDay: result30.rows,
-            ninetyDay: result90.rows
-        });
-    }
-catch (e) {
-    console.error(e.message);
-}});
-
-function buildMovingAverageQuery(windowWidth) {
-    const adjustedWindowWidth = windowWidth - 1;
-    return `
-        SELECT avg(weight)
-            OVER (ORDER BY measurement_date ROWS ${adjustedWindowWidth} PRECEDING)
-            AS avg_weight
+      const queryText = `
+        SELECT
+          measurement_date,
+          weight,
+          /* 7-day moving average */
+          AVG(weight) OVER (
+            ORDER BY measurement_date 
+            ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+          ) AS avg_7_day,
+  
+          /* 30-day moving average */
+          AVG(weight) OVER (
+            ORDER BY measurement_date
+            ROWS BETWEEN 29 PRECEDING AND CURRENT ROW
+          ) AS avg_30_day,
+  
+          /* 90-day moving average */
+          AVG(weight) OVER (
+            ORDER BY measurement_date
+            ROWS BETWEEN 89 PRECEDING AND CURRENT ROW
+          ) AS avg_90_day
+  
         FROM weight_entries
-    `;
-  }
+        ORDER BY measurement_date
+      `;
+  
+      const result = await pool.query(queryText);
+  
+      // You can optionally round/truncate your averages for display:
+      // e.g., parseFloat(result.rows[i].avg_7_day).toFixed(2)
+  
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+  
 
-// function buildMovingAverageQuery(windowWidth) {
-//     const adjustedWindowWidth = windowWidth - 1;
-//     return `
-//       SELECT measurement_date, weight, AVG(weight) OVER (
-//         ORDER BY measurement_date
-//         ROWS BETWEEN ${adjustedWindowWidth} PRECEDING AND CURRENT ROW
-//       ) AS moving_avg
-//       FROM weight_entries
-//       ORDER BY measurement_date;
-//     `;
-//   }
-// Get one entry.
 app.get("/weights/:measurement_date", async (req, res) => {
     try {
         const { measurement_date } = req.params;
