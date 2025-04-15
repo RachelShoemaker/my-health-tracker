@@ -17,7 +17,7 @@ const EditWeight = ({ measurement_date, currentWeight, onUpdated }) => {
       console.log("Updated weight:", jsonData);
       
       // Call a callback to let the parent know the record has been updated.
-      if (onUpdated) onUpdated(jsonData);
+      window.location.reload();
     } catch (error) {
       console.error("Error updating weight:", error.message);
     }
