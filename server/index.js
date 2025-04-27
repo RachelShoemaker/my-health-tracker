@@ -20,6 +20,7 @@ app.post("/weights", async(req, res) => {
         console.error(e.message);
     }
 })
+
 // Get all entries to list on the bottom half of a dashboard.
 app.get("/weights", async(req, res) => {
     try {
@@ -30,35 +31,41 @@ catch (e) {
     console.error(e.message);
 }});
 
-// Add this to index.js (or wherever you keep your routes)
-// This route will fetch all weight entries and include 7/30/90 day averages
 
+// This route will fetch all weight entries and include 7/30/90 day averages
 app.get("/weights/moving-averages", async (req, res) => {
     try {
       const queryText = `
         SELECT
-          measurement_date,
-          weight,
-          /* 7-day moving average */
-          AVG(weight) OVER (
-            ORDER BY measurement_date DESC
-            ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-          ) AS avg_7_day,
-  
-          /* 30-day moving average */
-          AVG(weight) OVER (
-            ORDER BY measurement_date DESC
-            ROWS BETWEEN 29 PRECEDING AND CURRENT ROW
-          ) AS avg_30_day,
-  
-          /* 90-day moving average */
-          AVG(weight) OVER (
-            ORDER BY measurement_date DESC
-            ROWS BETWEEN 89 PRECEDING AND CURRENT ROW
-          ) AS avg_90_day
-  
-        FROM weight_entries
-        ORDER BY measurement_date
+  measurement_date,
+  weight,
+
+  /* 7-day calendar window */
+  ROUND(
+    AVG(weight) OVER (
+      ORDER BY measurement_date
+      RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW
+    )::numeric
+  , 2) AS avg_7_day,
+
+  /* 30-day calendar window */
+  ROUND(
+    AVG(weight) OVER (
+      ORDER BY measurement_date
+      RANGE BETWEEN INTERVAL '29 days' PRECEDING AND CURRENT ROW
+    )::numeric
+  , 2) AS avg_30_day,
+
+  /* 90-day calendar window */
+  ROUND(
+    AVG(weight) OVER (
+      ORDER BY measurement_date
+      RANGE BETWEEN INTERVAL '89 days' PRECEDING AND CURRENT ROW
+    )::numeric
+  , 2) AS avg_90_day
+
+FROM weight_entries
+ORDER BY measurement_date DESC;
       `;
   
       const result = await pool.query(queryText);
