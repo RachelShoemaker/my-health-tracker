@@ -10,7 +10,7 @@ app.use(express.json()); // req.body
 
 // Create a food or weight entry.
 app.post("/weights", async(req, res) => {
-    // await, lets func complete before the tales is ready
+    // await, lets func complete before the tables is ready.
     try {
         const { measurement_date, weight } = req.body;
         const newWeight = await pool.query("INSERT INTO weight_entries (measurement_date, weight) VALUES($1, $2) RETURNING *", [measurement_date, weight]);
@@ -21,7 +21,7 @@ app.post("/weights", async(req, res) => {
     }
 })
 
-// Get all entries to list on the bottom half of a dashboard.
+// Get all entries to list on the middle section of the dashboard.
 app.get("/weights", async(req, res) => {
     try {
         const allWeights = await pool.query("SELECT * FROM weight_entries");
@@ -33,46 +33,44 @@ catch (e) {
 
 
 // This route will fetch all weight entries and include 7/30/90 day averages
+// This uses the windowing feature.
 app.get("/weights/moving-averages", async (req, res) => {
     try {
       const queryText = `
         SELECT
-  measurement_date,
-  weight,
+        measurement_date,
+        weight,
 
-  /* 7-day calendar window */
-  ROUND(
-    AVG(weight) OVER (
-      ORDER BY measurement_date
-      RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW
-    )::numeric
-  , 2) AS avg_7_day,
+        /* 7-day calendar window */
+        ROUND(
+          AVG(weight) OVER (
+            ORDER BY measurement_date
+            RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW
+          )::numeric
+        , 2) AS avg_7_day,
 
-  /* 30-day calendar window */
-  ROUND(
-    AVG(weight) OVER (
-      ORDER BY measurement_date
-      RANGE BETWEEN INTERVAL '29 days' PRECEDING AND CURRENT ROW
-    )::numeric
-  , 2) AS avg_30_day,
+        /* 30-day calendar window */
+        ROUND(
+          AVG(weight) OVER (
+            ORDER BY measurement_date
+            RANGE BETWEEN INTERVAL '29 days' PRECEDING AND CURRENT ROW
+          )::numeric
+        , 2) AS avg_30_day,
 
-  /* 90-day calendar window */
-  ROUND(
-    AVG(weight) OVER (
-      ORDER BY measurement_date
-      RANGE BETWEEN INTERVAL '89 days' PRECEDING AND CURRENT ROW
-    )::numeric
-  , 2) AS avg_90_day
+        /* 90-day calendar window */
+        ROUND(
+          AVG(weight) OVER (
+            ORDER BY measurement_date
+            RANGE BETWEEN INTERVAL '89 days' PRECEDING AND CURRENT ROW
+          )::numeric
+        , 2) AS avg_90_day
 
-FROM weight_entries
-ORDER BY measurement_date DESC;
+      FROM weight_entries
+      ORDER BY measurement_date DESC;
       `;
   
       const result = await pool.query(queryText);
-  
-      // You can optionally round/truncate your averages for display:
-      // e.g., parseFloat(result.rows[i].avg_7_day).toFixed(2)
-  
+    
       res.json(result.rows);
     } catch (err) {
       console.error(err.message);
@@ -80,7 +78,7 @@ ORDER BY measurement_date DESC;
     }
   });
   
-
+// Retrieves a specific log via date. The reason I used date as the identifier is because there can only be one weight for a date
 app.get("/weights/:measurement_date", async (req, res) => {
     try {
         const { measurement_date } = req.params;

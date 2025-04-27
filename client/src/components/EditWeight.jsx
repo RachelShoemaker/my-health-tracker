@@ -23,9 +23,9 @@ const EditWeight = ({ measurement_date, currentWeight, onUpdated }) => {
     }
   };
 
-  return (
+  return ( // Handles the visual display
     <Fragment>
-      {/* Use a unique modal ID based on measurement_date to avoid conflicts */}
+      {}
       <button
         type="button"
         className="btn btn-warning"

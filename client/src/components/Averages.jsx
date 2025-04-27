@@ -1,11 +1,13 @@
+// This page handles the the moving averages table for the web page
+
 import React, {Fragment, useEffect, useState} from "react";
 
 const Averages = () => {
     const [averages, setAverages] = useState([]);
 
-    const getAverages = async () => {
+    const getAverages = async () => { // This receives the table's contents from the server
         try {
-            const response = await fetch("http://localhost:5000/weights/moving-averages");
+            const response = await fetch("http://localhost:5000/weights/moving-averages"); 
             const jsonData = await response.json();
             setAverages(jsonData);
         } catch (error) {
@@ -17,7 +19,7 @@ const Averages = () => {
         getAverages();
     }, []);
 
-    return (
+    return ( // This handles the visual display of the table.
         <Fragment>
             <h2 className="mt-4">Moving Averages</h2>
             <div style={{ maxHeight: "800px", overflowY: "scroll" }}>

@@ -1,3 +1,5 @@
+// This code displays the list of weights, and the delete/edit button for each row.
+
 import React, {Fragment, useEffect, useState} from "react";
 import EditWeight from "./EditWeight";
 import "./ListWeights.css";
@@ -18,6 +20,7 @@ const ListWeights = () => {
         }
     }
 
+    // list of weight entries
     const getWeights = async () => {
         try {
             const response = await fetch("http://localhost:5000/weights");
@@ -32,7 +35,7 @@ const ListWeights = () => {
         getWeights();
     }, []);
 
-    return (
+    return ( // Displays the table of the weight history
     <Fragment>
       <div className="section-padding">
         <hr className="divider"/>

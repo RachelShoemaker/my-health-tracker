@@ -31,7 +31,7 @@ const InputWeight = () => {
     }
   };
 
-  return (
+  return ( // Visual display of this component.
     <Fragment>
       <h1>Weight tracker</h1>
       <form className="d-flex flex-column" onSubmit={onSubmitForm}>
